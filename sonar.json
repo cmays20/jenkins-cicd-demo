@@ -1,0 +1,86 @@
+{
+  "env": {
+    "sonar.jdbc.password": {
+      "secret": "secret0"
+    },
+    "sonar.jdbc.username": "sonar",
+    "sonar.jdbc.url": "jdbc:postgresql://cicdpostgres-sonar.marathon.l4lb.thisdcos.directory:5432/sonar_db"
+  },
+  "id": "/cicd/sonar",
+  "backoffFactor": 1.15,
+  "backoffSeconds": 1,
+  "constraints": [
+    [
+      "@region",
+      "IS",
+      "us-west-2"
+    ]
+  ],
+  "container": {
+    "portMappings": [
+      {
+        "containerPort": 9000,
+        "hostPort": 0,
+        "labels": {
+          "VIP_0": "/cicd/sonar:9000"
+        },
+        "protocol": "tcp",
+        "servicePort": 10001,
+        "name": "sonar"
+      }
+    ],
+    "type": "DOCKER",
+    "volumes": [],
+    "docker": {
+      "image": "sonarqube:6.7.6-community",
+      "forcePullImage": false,
+      "privileged": false,
+      "parameters": [
+        {
+          "key": "user",
+          "value": "sonarqube"
+        }
+      ]
+    }
+  },
+  "cpus": 2,
+  "disk": 0,
+  "healthChecks": [
+    {
+      "gracePeriodSeconds": 300,
+      "intervalSeconds": 60,
+      "maxConsecutiveFailures": 3,
+      "portIndex": 0,
+      "timeoutSeconds": 20,
+      "delaySeconds": 15,
+      "protocol": "MESOS_HTTP",
+      "path": "/",
+      "ipProtocol": "IPv4"
+    }
+  ],
+  "instances": 1,
+  "maxLaunchDelaySeconds": 3600,
+  "mem": 4096,
+  "gpus": 0,
+  "networks": [
+    {
+      "mode": "container/bridge"
+    }
+  ],
+  "requirePorts": false,
+  "secrets": {
+    "secret0": {
+      "source": "cicd/SONAR_POSTGRES_PASSWORD"
+    }
+  },
+  "upgradeStrategy": {
+    "maximumOverCapacity": 1,
+    "minimumHealthCapacity": 1
+  },
+  "killSelection": "YOUNGEST_FIRST",
+  "unreachableStrategy": {
+    "inactiveAfterSeconds": 0,
+    "expungeAfterSeconds": 0
+  },
+  "fetch": []
+}
