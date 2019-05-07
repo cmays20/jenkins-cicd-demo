@@ -1,0 +1,28 @@
+{
+  "apiVersion": "V2",
+  "name": "sonar-lb",
+  "namespace":"infra/network/dcos-edgelb/pools",
+  "count": 1,
+  "ports": [9000],
+  "haproxy": {
+    "frontends": [{
+      "bindPort": 9000,
+      "protocol": "HTTP",
+      "linkBackend": {
+        "defaultBackend": "sonar-backend"
+       }
+    }],
+    "backends": [{
+      "name": "sonar-backend",
+      "protocol": "HTTP",
+      "services": [{
+        "marathon": {
+          "serviceID": "/cicd/sonar"
+        },
+        "endpoint": {
+          "portName": "sonar"
+        }
+      }]
+      }]
+  }
+}
