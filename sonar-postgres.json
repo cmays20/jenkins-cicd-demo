@@ -1,0 +1,97 @@
+{
+  "env": {
+    "POSTGRES_PASSWORD": {
+      "secret": "secret0"
+    },
+    "POSTGRES_USER": "sonar",
+    "POSTGRES_PGDATA": "/var/lib/postgresql/data/pgdata",
+    "POSTGRES_DB": "sonar_db"
+  },
+  "id": "/cicd/postgres-sonar",
+  "backoffFactor": 1.15,
+  "backoffSeconds": 1,
+  "constraints": [
+    [
+      "@region",
+      "IS",
+      "us-west-2"
+    ],
+    [
+      "@zone",
+      "CLUSTER",
+      "us-west-2a"
+    ]
+  ],
+  "container": {
+    "portMappings": [
+      {
+        "containerPort": 5432,
+        "hostPort": 0,
+        "labels": {
+          "VIP_0": "/cicd/postgres-sonar:5432"
+        },
+        "protocol": "tcp",
+        "servicePort": 10000,
+        "name": "postgresql"
+      }
+    ],
+    "type": "MESOS",
+    "volumes": [
+      {
+        "external": {
+          "size": 50,
+          "name": "sonar-postgres",
+          "provider": "dvdi",
+          "options": {
+            "dvdi/driver": "rexray"
+          }
+        },
+        "mode": "RW",
+        "containerPath": "/var/lib/postgresql/data"
+      }
+    ],
+    "docker": {
+      "image": "postgres:11.2",
+      "forcePullImage": false,
+      "parameters": []
+    }
+  },
+  "cpus": 2,
+  "disk": 0,
+  "healthChecks": [
+    {
+      "gracePeriodSeconds": 300,
+      "intervalSeconds": 60,
+      "maxConsecutiveFailures": 3,
+      "portIndex": 0,
+      "timeoutSeconds": 20,
+      "delaySeconds": 15,
+      "protocol": "TCP"
+    }
+  ],
+  "instances": 1,
+  "maxLaunchDelaySeconds": 3600,
+  "mem": 4000,
+  "gpus": 0,
+  "networks": [
+    {
+      "mode": "container/bridge"
+    }
+  ],
+  "requirePorts": false,
+  "secrets": {
+    "secret0": {
+      "source": "cicd/SONAR_POSTGRES_PASSWORD"
+    }
+  },
+  "upgradeStrategy": {
+    "maximumOverCapacity": 0,
+    "minimumHealthCapacity": 0
+  },
+  "killSelection": "YOUNGEST_FIRST",
+  "unreachableStrategy": {
+    "inactiveAfterSeconds": 0,
+    "expungeAfterSeconds": 0
+  },
+  "fetch": []
+}
